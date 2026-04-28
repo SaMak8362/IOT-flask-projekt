@@ -1,212 +1,829 @@
 <!DOCTYPE html>
-<html lang="sk">
+<html lang="sk" data-theme="light">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Frontend A — Administračné rozhranie</title>
+  <title>Frontend A — IoT Prevodnik</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f4f9f4;
+      --bg2: #ffffff;
+      --bg3: #e8f5e9;
+      --primary: #16a34a;
+      --primary-dk: #166534;
+      --primary-lt: #bbf7d0;
+      --text: #1a2e1a;
+      --text2: #4b5e4b;
+      --border: #c6e6c8;
+      --shadow: rgba(22, 163, 74, 0.10);
+      --result-bg: #dcfce7;
+      --result-txt: #14532d;
+      --err: #dc2626;
+      --toggle-bg: #d1fae5;
+      --nav-a-bg: rgba(255, 255, 255, 0.20);
+      --table-head: #16a34a;
+      --table-even: #f0fdf4;
+      --table-row-hover: #dcfce7;
+      --badge-bg: #bbf7d0;
+      --badge-txt: #14532d;
+      --input-bg: #ffffff;
+      --card-line: #16a34a;
+      --scrollbar: #86efac;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0a130a;
+      --bg2: #0f1f0f;
+      --bg3: #1a2e1a;
+      --primary: #22c55e;
+      --primary-dk: #16a34a;
+      --primary-lt: #14532d;
+      --text: #d1fae5;
+      --text2: #86efac;
+      --border: #1f3d1f;
+      --shadow: rgba(34, 197, 94, 0.12);
+      --result-bg: #14532d;
+      --result-txt: #bbf7d0;
+      --err: #f87171;
+      --toggle-bg: #14532d;
+      --nav-a-bg: rgba(34, 197, 94, 0.15);
+      --table-head: #15803d;
+      --table-even: #0f1f0f;
+      --table-row-hover: #1a2e1a;
+      --badge-bg: #14532d;
+      --badge-txt: #86efac;
+      --input-bg: #0f1f0f;
+      --card-line: #22c55e;
+      --scrollbar: #166534;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f0f4f8;
-      color: #1a202c;
-      padding: 30px 20px;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.35s, color 0.35s;
     }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--scrollbar);
+      border-radius: 99px;
+    }
+
+    /* ── Header ── */
     header {
-      background: linear-gradient(135deg, #0078d4, #005fa3);
-      color: white;
-      padding: 20px 28px;
-      border-radius: 12px;
-      margin-bottom: 28px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dk));
+      color: #ffffff;
+      padding: 22px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 16px var(--shadow);
     }
-    header h1 { font-size: 1.6rem; }
-    header p  { font-size: 0.9rem; opacity: 0.85; margin-top: 4px; }
-    nav { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+    header h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    header p {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      margin-top: 2px;
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
     nav a {
-      background: rgba(255,255,255,0.2);
-      color: white;
+      background: var(--nav-a-bg);
+      color: #fff;
       text-decoration: none;
+      padding: 5px 14px;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    nav a:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    nav a.active {
+      background: rgba(255, 255, 255, 0.35);
+      font-weight: 600;
+    }
+
+    /* ── Night mode toggle ── */
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.85);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 99px;
+      transition: background 0.3s;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .slider::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .toggle input:checked+.slider {
+      background: rgba(0, 0, 0, 0.45);
+    }
+
+    .toggle input:checked+.slider::before {
+      transform: translateX(20px);
+    }
+
+    /* ── Main layout ── */
+    main {
+      max-width: 1100px;
+      margin: 32px auto;
+      padding: 0 20px;
+    }
+
+    /* ── Grid ── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    @media(max-width: 700px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--bg2);
+      border-radius: 14px;
+      padding: 26px;
+      box-shadow: 0 2px 18px var(--shadow);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--card-line);
+      transition: background 0.35s, border-color 0.35s, box-shadow 0.2s, transform 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 28px var(--shadow);
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      letter-spacing: -0.2px;
+    }
+
+    /* ── Form elements ── */
+    label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text2);
+      display: block;
+      margin-bottom: 5px;
+      margin-top: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    label:first-child {
+      margin-top: 0;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.92rem;
+      background: var(--input-bg);
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.35s;
+      outline: none;
+      appearance: none;
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-lt);
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2316a34a' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+      cursor: pointer;
+    }
+
+    /* ── Button ── */
+    .btn {
+      display: block;
+      width: 100%;
+      margin-top: 18px;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dk));
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0);
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px var(--shadow);
+    }
+
+    .btn:hover::after {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .btn.loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    /* ── Result / Error ── */
+    .result-box {
+      margin-top: 14px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: var(--result-bg);
+      color: var(--result-txt);
+      font-size: 1rem;
+      font-weight: 700;
+      min-height: 42px;
+      display: none;
+      animation: fadeSlide 0.3s ease;
+      border-left: 3px solid var(--primary);
+      transition: background 0.35s, color 0.35s;
+    }
+
+    .err-box {
+      margin-top: 8px;
+      color: var(--err);
+      font-size: 0.82rem;
+      min-height: 18px;
+      transition: color 0.35s;
+    }
+
+    @keyframes fadeSlide {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── Copy badge ── */
+    .copy-btn {
+      display: inline-block;
+      margin-left: 10px;
+      padding: 2px 9px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 99px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      vertical-align: middle;
+      transition: background 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: var(--primary-dk);
+    }
+
+    /* ── Counter ── */
+    .counter-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .counter-box {
+      flex: 1;
+      background: var(--bg3);
+      border-radius: 10px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      transition: background 0.35s;
+    }
+
+    .counter-box .num {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .counter-box .lbl {
+      font-size: 0.72rem;
+      color: var(--text2);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── History table ── */
+    .history-card {
+      margin-top: 22px;
+      background: var(--bg2);
+      border-radius: 14px;
+      padding: 26px;
+      box-shadow: 0 2px 18px var(--shadow);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--card-line);
+      transition: background 0.35s, border-color 0.35s;
+    }
+
+    .history-card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .history-header h2 {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border: none;
+    }
+
+    .btn-sm {
       padding: 6px 14px;
-      border-radius: 20px;
+      background: var(--bg3);
+      color: var(--primary);
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-sm:hover {
+      background: var(--primary-lt);
+      transform: translateY(-1px);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
       font-size: 0.85rem;
-      transition: background 0.2s;
+      min-width: 480px;
     }
-    nav a:hover { background: rgba(255,255,255,0.35); }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    @media(max-width:700px){ .grid { grid-template-columns: 1fr; } }
-    .karta {
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+
+    th {
+      background: var(--table-head);
+      color: #fff;
+      padding: 9px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    .karta h2 { font-size: 1.1rem; margin-bottom: 16px; color: #0078d4; display: flex; align-items: center; gap: 8px; }
-    label   { font-size: 0.85rem; font-weight: 600; color: #4a5568; display: block; margin-bottom: 4px; margin-top: 12px; }
-    input, select {
-      width: 100%; padding: 9px 12px; border: 1.5px solid #cbd5e0;
-      border-radius: 7px; font-size: 0.95rem; transition: border-color 0.2s;
+
+    th:first-child {
+      border-radius: 6px 0 0 6px;
     }
-    input:focus, select:focus { outline: none; border-color: #0078d4; }
-    button {
-      width: 100%; margin-top: 16px; padding: 11px;
-      background: #0078d4; color: white; border: none;
-      border-radius: 7px; font-size: 1rem; cursor: pointer;
-      transition: background 0.2s;
+
+    th:last-child {
+      border-radius: 0 6px 6px 0;
     }
-    button:hover { background: #005fa3; }
-    .vysledok-box {
-      margin-top: 14px; padding: 12px 16px;
-      border-radius: 8px; background: #ebf5fb;
-      font-size: 1.1rem; font-weight: 700; color: #005fa3;
-      min-height: 44px; display: none;
+
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
     }
-    .chyba-box {
-      margin-top: 10px; color: #c0392b; font-size: 0.9rem;
+
+    tr:hover td {
+      background: var(--table-row-hover);
     }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.88rem; }
-    th { background: #0078d4; color: white; padding: 8px 10px; text-align: left; }
-    td { padding: 8px 10px; border-bottom: 1px solid #e2e8f0; }
-    tr:hover td { background: #f7fbff; }
-    .prazdne { color: #a0aec0; font-style: italic; text-align: center; padding: 20px; }
-    .sekcia-historia { margin-top: 28px; }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      background: var(--badge-bg);
+      color: var(--badge-txt);
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .empty {
+      color: var(--text2);
+      font-style: italic;
+      text-align: center;
+      padding: 28px;
+      font-size: 0.85rem;
+    }
+
+    /* ── Loader ── */
+    .loader {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ── Tooltip ── */
+    [data-tooltip] {
+      position: relative;
+    }
+
+    [data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a2e1a;
+      color: #d1fae5;
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 99;
+    }
+
+    [data-theme="dark"] [data-tooltip]::after {
+      background: #d1fae5;
+      color: #1a2e1a;
+    }
+
+    [data-tooltip]:hover::after {
+      opacity: 1;
+    }
   </style>
 </head>
+
 <body>
 
-<header>
-  <h1>🖥️ Frontend A — Administračné rozhranie</h1>
-  <p>Tento formulár odosiela dáta na backend pomocou GET requestu.</p>
-  <nav>
-    <a href="/">🔢 Kalkulačka</a>
-    <a href="/klient">📋 Frontend B</a>
-    <a href="/api/historia">/api/historia</a>
-    <a href="/api/historia-prevodov">/api/historia-prevodov</a>
-  </nav>
-</header>
+  <header>
+    <div>
+      <h1>Frontend A &mdash; Administracne rozhranie</h1>
+      <p>IoT Prevodnik jednotiek + Kalkulacka</p>
+    </div>
+    <nav>
+      <a href="/" class="active">Frontend A</a>
+      <a href="/klient">Frontend B</a>
+      <a href="/api/historia">/api/historia</a>
+      <a href="/api/historia-prevodov">/api/historia-prevodov</a>
+    </nav>
+    <label class="toggle-wrap" data-tooltip="Prepnut noctor rezim">
+      Night mode
+      <span class="toggle">
+        <input type="checkbox" id="darkToggle" onchange="toggleTheme()">
+        <span class="slider"></span>
+      </span>
+    </label>
+  </header>
 
-<div class="grid">
+  <main>
 
-  <!-- ── Kalkulačka ── -->
-  <div class="karta">
-    <h2>🔢 Kalkulačka</h2>
-    <form id="formKalkulacka">
-      <label>Číslo 1:</label>
-      <input type="number" id="cislo1" step="any" placeholder="napr. 10" required>
-      <label>Číslo 2:</label>
-      <input type="number" id="cislo2" step="any" placeholder="napr. 5" required>
-      <label>Operácia:</label>
-      <select id="operacia">
-        <option value="plus">➕ Plus (+)</option>
-        <option value="minus">➖ Mínus (−)</option>
-        <option value="krat">✖️ Krát (×)</option>
-        <option value="deleno">➗ Deleno (÷)</option>
-      </select>
-      <button type="submit">Vypočítať</button>
-    </form>
-    <div id="vysledokKalk" class="vysledok-box"></div>
-    <div id="chybaKalk" class="chyba-box"></div>
-  </div>
+    <!-- Counters -->
+    <div class="counter-row">
+      <div class="counter-box">
+        <div class="num" id="cntPrevody">0</div>
+        <div class="lbl">Prevody celkom</div>
+      </div>
+      <div class="counter-box">
+        <div class="num" id="cntPosledny">—</div>
+        <div class="lbl">Posledny typ</div>
+      </div>
+      <div class="counter-box">
+        <div class="num" id="cntVypocty">0</div>
+        <div class="lbl">Vypocty celkom</div>
+      </div>
+    </div>
 
-  <!-- ── Prevodník jednotiek ── -->
-  <div class="karta">
-    <h2>📐 Prevodník IoT jednotiek</h2>
-    <form id="formPrevod">
-      <label>Hodnota:</label>
-      <input type="number" id="hodnotaPrevod" step="any" placeholder="napr. 25" required>
-      <label>Typ prevodu:</label>
-      <select id="typPrevod">
-        <option value="c_to_f">🌡️ °C → °F  (teplota)</option>
-        <option value="hpa_to_mmhg">🌬️ hPa → mmHg  (tlak)</option>
-        <option value="ms_to_kmh">💨 m/s → km/h  (rýchlosť vetra)</option>
-        <option value="km_to_miles">📏 km → míle  (vzdialenosť)</option>
-        <option value="lux_to_fc">💡 lux → fc  (osvetlenosť)</option>
-      </select>
-      <button type="submit">Previesť</button>
-    </form>
-    <div id="vysledokPrevod" class="vysledok-box"></div>
-    <div id="chybaPrevod" class="chyba-box"></div>
-  </div>
+    <div class="grid-2">
 
-</div>
+      <!-- Prevodnik -->
+      <div class="card">
+        <h2>Prevodnik IoT jednotiek</h2>
+        <form id="formPrevod" autocomplete="off">
+          <label for="hodnotaPrevod">Hodnota</label>
+          <input type="number" id="hodnotaPrevod" step="any" placeholder="napr. 25" required>
+          <label for="typPrevod">Typ prevodu</label>
+          <select id="typPrevod">
+            <option value="c_to_f">Celsius to Fahrenheit (teplota)</option>
+            <option value="hpa_to_mmhg">hPa to mmHg (tlak)</option>
+            <option value="ms_to_kmh">m/s to km/h (rychlost vetra)</option>
+            <option value="km_to_miles">km to mile (vzdialenost)</option>
+            <option value="lux_to_fc">lux to fc (osvetlenost)</option>
+          </select>
+          <button type="submit" class="btn" id="btnPrevod">Previest</button>
+        </form>
+        <div class="result-box" id="vysledokPrevod">
+          <span id="vysledokText"></span>
+          <button class="copy-btn" id="copyBtn" onclick="kopirujVysledok()"
+            data-tooltip="Kopirovat do schranky">Kopirovat</button>
+        </div>
+        <div class="err-box" id="chybaPrevod"></div>
+      </div>
 
-<!-- ── História prevodov (pod formulármi) ── -->
-<div class="karta sekcia-historia">
-  <h2>🕒 História prevodov (zo súboru prevody.json)</h2>
-  <div id="historiaPrevody">Načítavam...</div>
-</div>
+      <!-- Kalkulacka -->
+      <div class="card">
+        <h2>Kalkulacka</h2>
+        <form id="formKalk" autocomplete="off">
+          <label for="cislo1">Cislo 1</label>
+          <input type="number" id="cislo1" step="any" placeholder="napr. 10" required>
+          <label for="cislo2">Cislo 2</label>
+          <input type="number" id="cislo2" step="any" placeholder="napr. 5" required>
+          <label for="operacia">Operacia</label>
+          <select id="operacia">
+            <option value="plus">Plus (+)</option>
+            <option value="minus">Minus (-)</option>
+            <option value="krat">Krat (x)</option>
+            <option value="deleno">Deleno (/)</option>
+          </select>
+          <button type="submit" class="btn" id="btnKalk">Vypocitat</button>
+        </form>
+        <div class="result-box" id="vysledokKalk"><span id="vysledokKalkText"></span></div>
+        <div class="err-box" id="chybaKalk"></div>
+      </div>
 
-<script>
-  // ── Kalkulačka ──────────────────────────────────────────────────────────
-  document.getElementById("formKalkulacka").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const vBox = document.getElementById("vysledokKalk");
-    const cBox = document.getElementById("chybaKalk");
-    vBox.style.display = "none"; cBox.textContent = "";
+    </div>
 
-    const c1  = document.getElementById("cislo1").value;
-    const c2  = document.getElementById("cislo2").value;
-    const op  = document.getElementById("operacia").value;
+    <!-- Historia prevodov -->
+    <div class="history-card">
+      <div class="history-header">
+        <h2>Historia prevodov (prevody.json)</h2>
+        <button class="btn-sm" onclick="nacitajHistoriuPrevodov()">Obnovit</button>
+      </div>
+      <div class="table-wrap">
+        <div id="historiaPrevody"><span class="loader"></span> Nacitavam...</div>
+      </div>
+    </div>
 
-    try {
-      const res  = await fetch(`/vypocet?cislo1=${c1}&cislo2=${c2}&operacia=${op}`);
-      const data = await res.json();
-      if (!res.ok) { cBox.textContent = data.chyba || "Chyba servera."; return; }
-      const symboly = { plus:"+", minus:"−", krat:"×", deleno:"÷" };
-      vBox.textContent = `${data.cislo1} ${symboly[data.operacia] || data.operacia} ${data.cislo2} = ${data.vysledok}`;
-      vBox.style.display = "block";
-    } catch { cBox.textContent = "Nepodarilo sa spojiť so serverom."; }
-  });
+  </main>
 
-  // ── Prevodník ────────────────────────────────────────────────────────────
-  document.getElementById("formPrevod").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const vBox = document.getElementById("vysledokPrevod");
-    const cBox = document.getElementById("chybaPrevod");
-    vBox.style.display = "none"; cBox.textContent = "";
+  <script>
+    // ── Theme ──────────────────────────────────────────────────────────────────
+    function toggleTheme() {
+      const dark = document.getElementById('darkToggle').checked;
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+    }
+    (function initTheme() {
+      const saved = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      if (saved === 'dark') document.getElementById('darkToggle').checked = true;
+    })();
 
-    const hodnota = document.getElementById("hodnotaPrevod").value;
-    const typ     = document.getElementById("typPrevod").value;
+    // ── Prevodnik ──────────────────────────────────────────────────────────────
+    document.getElementById('formPrevod').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnPrevod');
+      const vBox = document.getElementById('vysledokPrevod');
+      const vTxt = document.getElementById('vysledokText');
+      const cBox = document.getElementById('chybaPrevod');
+      vBox.style.display = 'none'; cBox.textContent = '';
+      btn.classList.add('loading'); btn.textContent = 'Pocitam...';
 
-    try {
-      const res  = await fetch(`/api/prevod?hodnota=${hodnota}&typ=${typ}`);
-      const data = await res.json();
-      if (!res.ok) { cBox.textContent = data.chyba || "Chyba servera."; return; }
-      vBox.textContent = "✅ " + data.popis;
-      vBox.style.display = "block";
-      nacitajHistoriuPrevody();
-    } catch { cBox.textContent = "Nepodarilo sa spojiť so serverom."; }
-  });
+      const hodnota = document.getElementById('hodnotaPrevod').value;
+      const typ = document.getElementById('typPrevod').value;
+      try {
+        const res = await fetch(`/api/prevod?hodnota=${hodnota}&typ=${typ}`);
+        const data = await res.json();
+        if (!res.ok) { cBox.textContent = data.chyba || 'Chyba servera.'; return; }
+        vTxt.textContent = data.popis;
+        vBox.style.display = 'block';
+        nacitajHistoriuPrevodov();
+        nacitajCountery();
+      } catch { cBox.textContent = 'Nepodarilo sa spojit so serverom.'; }
+      finally { btn.classList.remove('loading'); btn.textContent = 'Previest'; }
+    });
 
-  // ── História prevodov ─────────────────────────────────────────────────────
-  async function nacitajHistoriuPrevody() {
-    const k = document.getElementById("historiaPrevody");
-    try {
-      const res     = await fetch("/api/historia-prevodov");
-      const prevody = await res.json();
-      if (!Array.isArray(prevody) || prevody.length === 0) {
-        k.innerHTML = '<p class="prazdne">Zatiaľ žiadne prevody.</p>'; return;
-      }
-      const TYPY = {
-        c_to_f:"°C → °F", hpa_to_mmhg:"hPa → mmHg",
-        ms_to_kmh:"m/s → km/h", km_to_miles:"km → míle", lux_to_fc:"lux → fc"
-      };
-      const riadky = [...prevody].reverse().slice(0, 10).map(p => `
+    function kopirujVysledok() {
+      const txt = document.getElementById('vysledokText').textContent;
+      navigator.clipboard.writeText(txt).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Skopirovane!';
+        setTimeout(() => btn.textContent = 'Kopirovat', 1800);
+      });
+    }
+
+    // ── Kalkulacka ─────────────────────────────────────────────────────────────
+    document.getElementById('formKalk').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnKalk');
+      const vBox = document.getElementById('vysledokKalk');
+      const vTxt = document.getElementById('vysledokKalkText');
+      const cBox = document.getElementById('chybaKalk');
+      vBox.style.display = 'none'; cBox.textContent = '';
+      btn.classList.add('loading'); btn.textContent = 'Pocitam...';
+
+      const c1 = document.getElementById('cislo1').value;
+      const c2 = document.getElementById('cislo2').value;
+      const op = document.getElementById('operacia').value;
+      try {
+        const res = await fetch(`/vypocet?cislo1=${c1}&cislo2=${c2}&operacia=${op}`);
+        const data = await res.json();
+        if (!res.ok) { cBox.textContent = data.chyba || 'Chyba servera.'; return; }
+        const sym = { plus: '+', minus: '-', krat: 'x', deleno: '/' };
+        vTxt.textContent = `${data.cislo1} ${sym[data.operacia] || data.operacia} ${data.cislo2} = ${data.vysledok}`;
+        vBox.style.display = 'block';
+        nacitajCountery();
+      } catch { cBox.textContent = 'Nepodarilo sa spojit so serverom.'; }
+      finally { btn.classList.remove('loading'); btn.textContent = 'Vypocitat'; }
+    });
+
+    // ── Historia prevodov ──────────────────────────────────────────────────────
+    const TYPY = {
+      c_to_f: 'C to F', hpa_to_mmhg: 'hPa to mmHg',
+      ms_to_kmh: 'm/s to km/h', km_to_miles: 'km to mile', lux_to_fc: 'lux to fc'
+    };
+
+    async function nacitajHistoriuPrevodov() {
+      const k = document.getElementById('historiaPrevody');
+      try {
+        const res = await fetch('/api/historia-prevodov');
+        const prevody = await res.json();
+        if (!prevody.length) { k.innerHTML = '<p class="empty">Zatial ziadne prevody.</p>'; return; }
+        const riadky = [...prevody].reverse().map(p => `
         <tr>
           <td>${p.hodnota}</td>
-          <td>${TYPY[p.typ] || p.typ}</td>
+          <td><span class="badge">${TYPY[p.typ] || p.typ}</span></td>
           <td><strong>${p.vysledok}</strong></td>
           <td>${p.popis}</td>
           <td>${p.cas}</td>
-        </tr>`).join("");
-      k.innerHTML = `
-        <table>
-          <thead><tr><th>Vstup</th><th>Typ</th><th>Výsledok</th><th>Popis</th><th>Čas</th></tr></thead>
-          <tbody>${riadky}</tbody>
-        </table>`;
-    } catch { k.innerHTML = '<p style="color:red">Chyba pri načítaní histórie.</p>'; }
-  }
+        </tr>`).join('');
+        k.innerHTML = `<table>
+        <thead><tr><th>Vstup</th><th>Typ</th><th>Vysledok</th><th>Popis</th><th>Cas</th></tr></thead>
+        <tbody>${riadky}</tbody></table>`;
+      } catch { k.innerHTML = '<p class="empty" style="color:var(--err)">Chyba pri nacitavani.</p>'; }
+    }
 
-  nacitajHistoriuPrevody();
-</script>
+    // ── Countery ───────────────────────────────────────────────────────────────
+    async function nacitajCountery() {
+      try {
+        const [rP, rK] = await Promise.all([
+          fetch('/api/historia-prevodov'),
+          fetch('/api/historia')
+        ]);
+        const prevody = await rP.json();
+        const vypocty = await rK.json();
+        animateNum('cntPrevody', prevody.length);
+        animateNum('cntVypocty', vypocty.length);
+        if (prevody.length) {
+          const last = prevody[prevody.length - 1];
+          document.getElementById('cntPosledny').textContent = TYPY[last.typ] || last.typ;
+        }
+      } catch { }
+    }
+
+    function animateNum(id, target) {
+      const el = document.getElementById(id);
+      const start = parseInt(el.textContent) || 0;
+      const diff = target - start;
+      const steps = 18;
+      let i = 0;
+      const t = setInterval(() => {
+        i++;
+        el.textContent = Math.round(start + (diff * i / steps));
+        if (i >= steps) clearInterval(t);
+      }, 20);
+    }
+
+    nacitajHistoriuPrevodov();
+    nacitajCountery();
+  </script>
 </body>
+
 </html>

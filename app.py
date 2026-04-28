@@ -17,7 +17,7 @@ CORS(app)
 # ─────────────────────────────────────────────────────────────────────────────
 # SQLITE DATABÁZA (kalkulačka)
 # ─────────────────────────────────────────────────────────────────────────────
-DATABASE = "/home/databaza.db"  # ✅ OPRAVENÉ: perzistentná cesta na Azure
+DATABASE = "/home/databaza.db"
 
 def inicializuj_databazu():
     conn = sqlite3.connect(DATABASE)
@@ -34,7 +34,7 @@ def inicializuj_databazu():
     """)
     conn.commit()
     conn.close()
-    print("✅ Databáza inicializovaná.")
+    print("Databáza inicializovaná.")
 
 def uloz_do_databazy(cislo1, cislo2, operacia, vysledok):
     conn = sqlite3.connect(DATABASE)
@@ -220,11 +220,11 @@ def historia_prevodov():
 # ─────────────────────────────────────────────────────────────────────────────
 # ŠTART — inicializácia MIMO if __name__ (funguje aj cez Gunicorn!)
 # ─────────────────────────────────────────────────────────────────────────────
-inicializuj_databazu()  # ✅ OPRAVENÉ: Gunicorn toto teraz spustí
+inicializuj_databazu()
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("🚀 IoT Backend Server beží!")
+    print("IoT Backend Server beží!")
     print("=" * 60)
     print("  Frontend A:            http://localhost:5000/")
     print("  Frontend B:            http://localhost:5000/klient")

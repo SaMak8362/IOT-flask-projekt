@@ -1,228 +1,641 @@
 <!DOCTYPE html>
-<html lang="sk">
+<html lang="sk" data-theme="light">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Frontend B — Klientský pohľad</title>
+  <title>Frontend B — IoT Klient</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f0f6ff;
+      --bg2: #ffffff;
+      --bg3: #e8f1fe;
+      --primary: #1d6fd8;
+      --primary-dk: #1553a8;
+      --primary-lt: #bfdbfe;
+      --text: #0f1e36;
+      --text2: #4b6080;
+      --border: #c8d9f5;
+      --shadow: rgba(29, 111, 216, 0.10);
+      --table-head: #1d6fd8;
+      --table-row-hover: #dbeafe;
+      --badge-bg: #bfdbfe;
+      --badge-txt: #1e40af;
+      --input-bg: #ffffff;
+      --card-line: #1d6fd8;
+      --scrollbar: #93c5fd;
+      --live-dot: #22c55e;
+    }
+
+    [data-theme="dark"] {
+      --bg: #060d1a;
+      --bg2: #0c1829;
+      --bg3: #112038;
+      --primary: #3b82f6;
+      --primary-dk: #1d6fd8;
+      --primary-lt: #1e3a5f;
+      --text: #dbeafe;
+      --text2: #93c5fd;
+      --border: #1e3a5f;
+      --shadow: rgba(59, 130, 246, 0.12);
+      --table-head: #1553a8;
+      --table-row-hover: #112038;
+      --badge-bg: #1e3a5f;
+      --badge-txt: #93c5fd;
+      --input-bg: #0c1829;
+      --card-line: #3b82f6;
+      --scrollbar: #1d6fd8;
+      --live-dot: #22c55e;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f0f4f8;
-      color: #1a202c;
-      padding: 30px 20px;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.35s, color 0.35s;
     }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--scrollbar);
+      border-radius: 99px;
+    }
+
+    /* ── Header ── */
     header {
-      background: linear-gradient(135deg, #2d6a4f, #1b4332);
-      color: white;
-      padding: 20px 28px;
-      border-radius: 12px;
-      margin-bottom: 28px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dk));
+      color: #ffffff;
+      padding: 22px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 16px var(--shadow);
     }
-    header h1 { font-size: 1.6rem; }
-    header p  { font-size: 0.9rem; opacity: 0.85; margin-top: 4px; }
-    nav { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .header-left h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .header-left p {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      margin-top: 2px;
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--live-dot);
+      border-radius: 50%;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+      }
+
+      50% {
+        box-shadow: 0 0 0 5px rgba(34, 197, 94, 0);
+      }
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
     nav a {
-      background: rgba(255,255,255,0.2);
-      color: white;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
       text-decoration: none;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      transition: background 0.2s;
+      padding: 5px 14px;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: background 0.2s, transform 0.15s;
     }
-    nav a:hover { background: rgba(255,255,255,0.35); }
-    .karta {
-      background: white;
+
+    nav a:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    nav a.active {
+      background: rgba(255, 255, 255, 0.35);
+      font-weight: 600;
+    }
+
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.85);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 99px;
+      transition: background 0.3s;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .slider::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .toggle input:checked+.slider {
+      background: rgba(0, 0, 0, 0.45);
+    }
+
+    .toggle input:checked+.slider::before {
+      transform: translateX(20px);
+    }
+
+    /* ── Main ── */
+    main {
+      max-width: 1100px;
+      margin: 32px auto;
+      padding: 0 20px;
+    }
+
+    /* ── Stat cards ── */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    @media(max-width: 600px) {
+      .stat-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .stat-box {
+      background: var(--bg2);
       border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      margin-bottom: 24px;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--card-line);
+      box-shadow: 0 1px 8px var(--shadow);
+      transition: background 0.35s, transform 0.2s, box-shadow 0.2s;
     }
-    .karta-hlavicka {
+
+    .stat-box:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px var(--shadow);
+    }
+
+    .stat-box .num {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .stat-box .lbl {
+      font-size: 0.7rem;
+      color: var(--text2);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .countdown-bar {
+      height: 3px;
+      background: var(--border);
+      border-radius: 99px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .countdown-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 99px;
+      width: 100%;
+      transition: width 1s linear;
+    }
+
+    /* ── Data card ── */
+    .data-card {
+      background: var(--bg2);
+      border-radius: 14px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--card-line);
+      box-shadow: 0 2px 16px var(--shadow);
+      margin-bottom: 22px;
+      transition: background 0.35s, border-color 0.35s;
+    }
+
+    .card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 16px;
-      flex-wrap: wrap;
-      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
     }
-    .karta h2 { font-size: 1.1rem; color: #2d6a4f; display: flex; align-items: center; gap: 8px; }
-    button {
-      padding: 8px 18px;
-      border: none;
+
+    .card-header h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .btn-sm {
+      padding: 6px 14px;
+      background: var(--bg3);
+      color: var(--primary);
+      border: 1.5px solid var(--border);
       border-radius: 7px;
+      font-size: 0.75rem;
+      font-weight: 600;
       cursor: pointer;
-      font-size: 0.88rem;
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.15s;
     }
-    .btn-green  { background: #2d6a4f; color: white; }
-    .btn-green:hover  { background: #1b4332; }
-    .btn-blue   { background: #0078d4; color: white; }
-    .btn-blue:hover   { background: #005fa3; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-    th { background: #2d6a4f; color: white; padding: 9px 11px; text-align: left; }
-    td { padding: 8px 11px; border-bottom: 1px solid #e2e8f0; }
-    tr:hover td { background: #f0faf5; }
-    .prazdne { color: #a0aec0; font-style: italic; text-align: center; padding: 28px; }
+
+    .btn-sm:hover {
+      background: var(--primary-lt);
+      transform: translateY(-1px);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      min-width: 480px;
+    }
+
+    th {
+      background: var(--table-head);
+      color: #fff;
+      padding: 9px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    th:first-child {
+      border-radius: 6px 0 0 6px;
+    }
+
+    th:last-child {
+      border-radius: 0 6px 6px 0;
+    }
+
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    tr:hover td {
+      background: var(--table-row-hover);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    @keyframes rowFlash {
+      from {
+        background: var(--primary-lt);
+      }
+
+      to {
+        background: transparent;
+      }
+    }
+
+    .new-row td {
+      animation: rowFlash 1.2s ease forwards;
+    }
+
     .badge {
       display: inline-block;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      background: #ebf5fb;
-      color: #0078d4;
+      padding: 2px 9px;
+      background: var(--badge-bg);
+      color: var(--badge-txt);
+      border-radius: 99px;
+      font-size: 0.7rem;
+      font-weight: 700;
     }
-    .interval-info {
-      font-size: 0.8rem;
-      color: #718096;
-      margin-top: 8px;
+
+    .empty {
+      color: var(--text2);
+      font-style: italic;
+      text-align: center;
+      padding: 28px;
+      font-size: 0.85rem;
     }
-    .url-input-box {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
+
+    .loader {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
     }
-    .url-input-box input {
-      flex: 1;
-      min-width: 200px;
-      padding: 8px 12px;
-      border: 1.5px solid #cbd5e0;
-      border-radius: 7px;
-      font-size: 0.9rem;
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
-    .url-input-box input:focus { outline: none; border-color: #2d6a4f; }
+
+    [data-tooltip] {
+      position: relative;
+    }
+
+    [data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f1e36;
+      color: #dbeafe;
+      font-size: 0.7rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 99;
+    }
+
+    [data-tooltip]:hover::after {
+      opacity: 1;
+    }
   </style>
 </head>
+
 <body>
 
-<header>
-  <h1>📊 Frontend B — Klientský pohľad (IoT)</h1>
-  <p>Zobrazuje dáta z backend API — automatická obnova každých 5 sekúnd.</p>
-  <nav>
-    <a href="/">🔢 Frontend A</a>
-    <a href="/klient">📊 Frontend B</a>
-    <a href="/api/historia">/api/historia</a>
-    <a href="/api/historia-prevodov">/api/historia-prevodov</a>
-  </nav>
-</header>
+  <header>
+    <div class="header-left">
+      <h1>Frontend B &mdash; Klientsky pohlad (IoT)</h1>
+      <p>Citanie dat z backend API</p>
+    </div>
+    <span class="live-badge">
+      <span class="live-dot"></span>
+      LIVE &mdash; obnova / 5 s
+    </span>
+    <nav>
+      <a href="/">Frontend A</a>
+      <a href="/klient" class="active">Frontend B</a>
+      <a href="/api/historia">/api/historia</a>
+      <a href="/api/historia-prevodov">/api/historia-prevodov</a>
+    </nav>
+    <label class="toggle-wrap" data-tooltip="Prepnut nocny rezim">
+      Night mode
+      <span class="toggle">
+        <input type="checkbox" id="darkToggle" onchange="toggleTheme()">
+        <span class="slider"></span>
+      </span>
+    </label>
+  </header>
 
-<!-- ── Nastavenie URL backendu ── -->
-<div class="karta">
-  <h2>⚙️ Backend URL</h2>
-  <div class="url-input-box" style="margin-top:12px">
-    <input type="text" id="backendUrl" placeholder="http://localhost:5000">
-    <button class="btn-green" onclick="nastavUrl()">Nastaviť</button>
-    <button class="btn-blue"  onclick="nacitajVsetko()">🔄 Obnoviť teraz</button>
-  </div>
-  <p class="interval-info">Prázdne pole = rovnaký server (relatívne URL). Obnova každých 5 s.</p>
-</div>
+  <main>
 
-<!-- ── História prevodov jednotiek ── -->
-<div class="karta">
-  <div class="karta-hlavicka">
-    <h2>📐 História prevodov jednotiek</h2>
-    <button class="btn-green" onclick="nacitajHistoriuPrevodov()">🔄 Obnoviť</button>
-  </div>
-  <div id="historiaPrevody">Načítavam...</div>
-</div>
+    <!-- Stat counters -->
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="num" id="statPrevody">—</div>
+        <div class="lbl">Prevody celkom</div>
+        <div class="countdown-bar">
+          <div class="countdown-fill" id="bar1"></div>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="statVypocty">—</div>
+        <div class="lbl">Vypocty celkom</div>
+        <div class="countdown-bar">
+          <div class="countdown-fill" id="bar2"></div>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="statPosledny">—</div>
+        <div class="lbl">Posledny prevod</div>
+        <div class="countdown-bar">
+          <div class="countdown-fill" id="bar3"></div>
+        </div>
+      </div>
+    </div>
 
-<!-- ── História výpočtov (kalkulačka) ── -->
-<div class="karta">
-  <div class="karta-hlavicka">
-    <h2>🔢 História výpočtov (kalkulačka)</h2>
-    <button class="btn-blue" onclick="nacitajHistoriuKalk()">🔄 Obnoviť</button>
-  </div>
-  <div id="historiaKalk">Načítavam...</div>
-</div>
+    <!-- Historia prevodov -->
+    <div class="data-card">
+      <div class="card-header">
+        <h2>Historia prevodov jednotiek</h2>
+        <button class="btn-sm" onclick="nacitajHistoriuPrevodov()">Obnovit</button>
+      </div>
+      <div class="table-wrap">
+        <div id="historiaPrevody"><span class="loader"></span> Nacitavam...</div>
+      </div>
+    </div>
 
-<script>
-  let BASE_URL = "";
+    <!-- Historia kalkulacky -->
+    <div class="data-card">
+      <div class="card-header">
+        <h2>Historia vypoctov (kalkulacka)</h2>
+        <button class="btn-sm" onclick="nacitajHistoriuKalk()">Obnovit</button>
+      </div>
+      <div class="table-wrap">
+        <div id="historiaKalk"><span class="loader"></span> Nacitavam...</div>
+      </div>
+    </div>
 
-  function nastavUrl() {
-    const vstup = document.getElementById("backendUrl").value.trim();
-    BASE_URL = vstup.replace(/\/$/, "");
-    nacitajVsetko();
-  }
+  </main>
 
-  // ── História prevodov jednotiek ───────────────────────────────────────────
-  async function nacitajHistoriuPrevodov() {
-    const k = document.getElementById("historiaPrevody");
+  <script>
+    // ── Theme ──────────────────────────────────────────────────────────────────
+    function toggleTheme() {
+      const dark = document.getElementById('darkToggle').checked;
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.setItem('theme-b', dark ? 'dark' : 'light');
+    }
+    (function () {
+      const saved = localStorage.getItem('theme-b') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      if (saved === 'dark') document.getElementById('darkToggle').checked = true;
+    })();
+
+    // ── State ──────────────────────────────────────────────────────────────────
+    let prevCountPrevody = 0;
+    let prevCountKalk = 0;
+
     const TYPY = {
-      c_to_f:"°C → °F", hpa_to_mmhg:"hPa → mmHg",
-      ms_to_kmh:"m/s → km/h", km_to_miles:"km → míle", lux_to_fc:"lux → fc"
+      c_to_f: 'C to F', hpa_to_mmhg: 'hPa to mmHg',
+      ms_to_kmh: 'm/s to km/h', km_to_miles: 'km to mile', lux_to_fc: 'lux to fc'
     };
-    try {
-      const res     = await fetch(`${BASE_URL}/api/historia-prevodov`);
-      const prevody = await res.json();
-      if (!Array.isArray(prevody) || prevody.length === 0) {
-        k.innerHTML = '<p class="prazdne">Zatiaľ žiadne prevody jednotiek.</p>'; return;
-      }
-      const riadky = [...prevody].reverse().map(p => `
-        <tr>
+
+    // ── Historia prevodov ──────────────────────────────────────────────────────
+    async function nacitajHistoriuPrevodov() {
+      const k = document.getElementById('historiaPrevody');
+      try {
+        const res = await fetch('/api/historia-prevodov');
+        const prevody = await res.json();
+        document.getElementById('statPrevody').textContent = prevody.length;
+        if (!prevody.length) { k.innerHTML = '<p class="empty">Zatial ziadne prevody jednotiek.</p>'; return; }
+        const isNew = prevody.length > prevCountPrevody;
+        prevCountPrevody = prevody.length;
+        const riadky = [...prevody].reverse().map((p, i) => `
+        <tr class="${i === 0 && isNew ? 'new-row' : ''}">
           <td>${p.hodnota}</td>
           <td><span class="badge">${TYPY[p.typ] || p.typ}</span></td>
           <td><strong>${p.vysledok}</strong></td>
           <td>${p.popis}</td>
           <td>${p.cas}</td>
-        </tr>`).join("");
-      k.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Vstup</th><th>Typ prevodu</th><th>Výsledok</th><th>Popis</th><th>Čas</th>
-            </tr>
-          </thead>
-          <tbody>${riadky}</tbody>
-        </table>`;
-    } catch (err) {
-      k.innerHTML = `<p style="color:red">❌ Chyba pri načítaní: ${err.message}</p>`;
-    }
-  }
-
-  // ── História kalkulačky ───────────────────────────────────────────────────
-  async function nacitajHistoriuKalk() {
-    const k = document.getElementById("historiaKalk");
-    const symboly = { plus:"+", minus:"−", krat:"×", deleno:"÷" };
-    try {
-      const res      = await fetch(`${BASE_URL}/api/historia`);
-      const vypocty  = await res.json();
-      if (!Array.isArray(vypocty) || vypocty.length === 0) {
-        k.innerHTML = '<p class="prazdne">Zatiaľ žiadne výpočty.</p>'; return;
+        </tr>`).join('');
+        k.innerHTML = `<table>
+        <thead><tr>
+          <th>Vstup</th><th>Typ prevodu</th><th>Vysledok</th><th>Popis</th><th>Cas</th>
+        </tr></thead>
+        <tbody>${riadky}</tbody></table>`;
+        const last = prevody[prevody.length - 1];
+        document.getElementById('statPosledny').textContent = TYPY[last.typ] || last.typ;
+      } catch (err) {
+        k.innerHTML = `<p class="empty" style="color:var(--err)">Chyba: ${err.message}</p>`;
       }
-      const riadky = vypocty.map(v => `
-        <tr>
+    }
+
+    // ── Historia kalkulacky ────────────────────────────────────────────────────
+    async function nacitajHistoriuKalk() {
+      const k = document.getElementById('historiaKalk');
+      const sym = { plus: '+', minus: '-', krat: 'x', deleno: '/' };
+      try {
+        const res = await fetch('/api/historia');
+        const vypocty = await res.json();
+        document.getElementById('statVypocty').textContent = vypocty.length;
+        if (!vypocty.length) { k.innerHTML = '<p class="empty">Zatial ziadne vypocty.</p>'; return; }
+        const isNew = vypocty.length > prevCountKalk;
+        prevCountKalk = vypocty.length;
+        const riadky = vypocty.map((v, i) => `
+        <tr class="${i === 0 && isNew ? 'new-row' : ''}">
           <td>${v.cislo1}</td>
-          <td><span class="badge" style="background:#ebf5fb;color:#0078d4">${symboly[v.operacia] || v.operacia}</span></td>
+          <td><span class="badge">${sym[v.operacia] || v.operacia}</span></td>
           <td>${v.cislo2}</td>
           <td><strong>${v.vysledok}</strong></td>
           <td>${v.cas}</td>
-        </tr>`).join("");
-      k.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Číslo 1</th><th>Op.</th><th>Číslo 2</th><th>Výsledok</th><th>Čas</th>
-            </tr>
-          </thead>
-          <tbody>${riadky}</tbody>
-        </table>`;
-    } catch (err) {
-      k.innerHTML = `<p style="color:red">❌ Chyba pri načítaní: ${err.message}</p>`;
+        </tr>`).join('');
+        k.innerHTML = `<table>
+        <thead><tr>
+          <th>Cislo 1</th><th>Op.</th><th>Cislo 2</th><th>Vysledok</th><th>Cas</th>
+        </tr></thead>
+        <tbody>${riadky}</tbody></table>`;
+      } catch (err) {
+        k.innerHTML = `<p class="empty" style="color:var(--err)">Chyba: ${err.message}</p>`;
+      }
     }
-  }
 
-  function nacitajVsetko() {
-    nacitajHistoriuPrevodov();
-    nacitajHistoriuKalk();
-  }
+    // ── Auto-obnova + countdown bars ──────────────────────────────────────────
+    function nacitajVsetko() {
+      nacitajHistoriuPrevodov();
+      nacitajHistoriuKalk();
+      resetBars();
+    }
 
-  // Prvé načítanie + auto-obnova každých 5 sekúnd
-  nacitajVsetko();
-  setInterval(nacitajVsetko, 5000);
-</script>
+    function resetBars() {
+      ['bar1', 'bar2', 'bar3'].forEach(id => {
+        const b = document.getElementById(id);
+        b.style.transition = 'none';
+        b.style.width = '100%';
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            b.style.transition = 'width 5s linear';
+            b.style.width = '0%';
+          });
+        });
+      });
+    }
+
+    nacitajVsetko();
+    setInterval(nacitajVsetko, 5000);
+  </script>
 </body>
+
 </html>
