@@ -17,7 +17,7 @@ CORS(app)
 # ─────────────────────────────────────────────────────────────────────────────
 # SQLITE DATABÁZA (kalkulačka)
 # ─────────────────────────────────────────────────────────────────────────────
-DATABASE = "databaza.db"
+DATABASE = "/home/databaza.db"  # ✅ OPRAVENÉ: perzistentná cesta na Azure
 
 def inicializuj_databazu():
     conn = sqlite3.connect(DATABASE)
@@ -61,7 +61,6 @@ def nacitaj_vsetky_vypocty():
 # ─────────────────────────────────────────────────────────────────────────────
 # JSON SÚBOR (prevodník jednotiek)
 # ─────────────────────────────────────────────────────────────────────────────
-# /home je perzistentný disk na Azure App Service (Linux)
 SUBOR = "/home/prevody.json"
 
 def nacitaj_prevody():
@@ -170,7 +169,7 @@ def iot_odosli():
     })
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PREVODNÍK JEDNOTIEK  ← NOVÉ (zadanie na doma)
+# PREVODNÍK JEDNOTIEK
 # ─────────────────────────────────────────────────────────────────────────────
 @app.route("/api/prevod")
 def prevod():
@@ -219,10 +218,11 @@ def historia_prevodov():
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ŠTART SERVERA
+# ŠTART — inicializácia MIMO if __name__ (funguje aj cez Gunicorn!)
 # ─────────────────────────────────────────────────────────────────────────────
+inicializuj_databazu()  # ✅ OPRAVENÉ: Gunicorn toto teraz spustí
+
 if __name__ == "__main__":
-    inicializuj_databazu()
     print("=" * 60)
     print("🚀 IoT Backend Server beží!")
     print("=" * 60)
