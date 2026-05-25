@@ -23,8 +23,7 @@
 // === Konfigurácia — DOPLŇTE VLASTNÉ HODNOTY ===
 const char* WIFI_SSID     = "Halal";
 const char* WIFI_PASSWORD = "cwqo6020";
-const String API_URL      = "https://kalk-hvgwb2eechdvc3ca.polandcentral-01.azurewebsites.net/led-stav";
-
+const String API_URL      = "hhttps://kalk-hvgwb2eechdvc3ca.polandcentral-01.azurewebsites.net/api/led-stav";
 const int LED_PIN = 2;
 
 void setup() {
