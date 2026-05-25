@@ -2,16 +2,16 @@
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
-    <title>Ovládanie LED</title>
+    <title>Ovládanie svetla</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 480px; margin: 3em auto; padding: 1em; text-align: center; }
         h1 { color: #333; }
         button {
             font-size: 1.5em; padding: 1em 2em; border: 0; border-radius: 8px;
-            background: #2563eb; color: white; cursor: pointer;
+            background: #16a34a; color: white; cursor: pointer;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
-        button:hover { background: #1d4ed8; }
+        button:hover { background: #15803d; }
         .stav-on { color: #16a34a; font-weight: bold; }
         .stav-off { color: #6b7280; }
         .indikator {
@@ -23,10 +23,10 @@
     </style>
 </head>
 <body>
-    <h1>Ovládanie LED na ESP32</h1>
+    <h1>Ovládanie svetla na ESP32</h1>
     <div id="indikator" class="indikator off"></div>
     <p>Aktuálny stav: <span id="stav" class="stav-off">načítavam...</span></p>
-    <button id="btn">Prepnúť LED</button>
+    <button id="btn">Prepnúť svetlo</button>
 
     <script>
         const btn = document.getElementById("btn");
@@ -35,11 +35,11 @@
 
         function zobraz(stav) {
             if (stav) {
-                stavEl.textContent = "ZAPNUTÁ";
+                stavEl.textContent = "ZAPNUTÉ";
                 stavEl.className = "stav-on";
                 indikator.className = "indikator on";
             } else {
-                stavEl.textContent = "VYPNUTÁ";
+                stavEl.textContent = "VYPNUTÉ";
                 stavEl.className = "stav-off";
                 indikator.className = "indikator off";
             }
@@ -47,18 +47,18 @@
 
         async function aktualizuj() {
             try {
-                const r = await fetch("/api/led-stav");
+                const r = await fetch("/api/svetlo");
                 const d = await r.json();
-                zobraz(d.stav);
+                zobraz(d.led);
             } catch (e) {
                 stavEl.textContent = "chyba spojenia";
             }
         }
 
         btn.onclick = async () => {
-            const r = await fetch("/api/led-prepni", { method: "POST" });
+            const r = await fetch("/api/svetlo/prepni", { method: "POST" });
             const d = await r.json();
-            zobraz(d.stav);
+            zobraz(d.led);
         };
 
         aktualizuj();
