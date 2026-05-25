@@ -23,7 +23,7 @@
 // === Konfigurácia — DOPLŇTE VLASTNÉ HODNOTY ===
 const char* WIFI_SSID     = "Halal";
 const char* WIFI_PASSWORD = "cwqo6020";
-const String API_URL      = "https://kalk-hvgwb2eechdvc3ca.polandcentral-01.azurewebsites.net/api/led-stav";
+const String API_URL      = "https://kalk-hvgwb2eechdvc3ca.polandcentral-01.azurewebsites.net/led-stav";
 
 const int LED_PIN = 2;
 
@@ -35,7 +35,7 @@ void setup() {
 
     Serial.print("Pripajam sa k Wi-Fi");
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    //while (WiFi.status() == WL_CONNECTED) {   ked je pripojene tak čaka
+    //while (WiFi.status() == WL_CONNECTED) {   ked je pripojene tak čaka treba ked nie je pripojene tak čaka
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         Serial.print(".");
@@ -67,7 +67,7 @@ void loop() {
 
         if (!err) {
             bool stav = doc["led"];
-            //digitalWrite(LED_PIN, stav ? LOW : HIGH);  musí to byť preobratene lebo inakšie lebo keď sa zapneme na stranke tak sa vypne
+            //digitalWrite(LED_PIN, stav ? LOW : HIGH);  musí to byť preobratene lebo inakšie  keď sa zapneme na stranke tak sa vypne
             digitalWrite(LED_PIN, stav ? HIGH: LOW);
         } else {
             Serial.print("Chyba parsovania JSON: ");
